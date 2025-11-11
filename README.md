@@ -45,4 +45,5 @@ The other mandatory algorithms, DBSCAN and Hierarchical Clustering, were found t
 * **`task_3_hierarchical-clustering.py`**: Our Hierarchical analysis. Run on the same 3 features for a fair comparison against K-Means.
 * **`analysis_plots/`**: Folder containing all plots from the Task 1 analysis.
 * **`clustering_plots/`**: Folder containing all plots from the Task 3 clustering (Elbow plots, dendrograms, centroid plots, etc.).
+* **`tex/`**: Folder containing tex files used for the pdf report.
 * **`Project_Bushpepa.pdf`**: The final LaTeX report summarizing all findings.
