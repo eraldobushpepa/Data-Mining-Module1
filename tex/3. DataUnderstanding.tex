@@ -1,0 +1,376 @@
+\stepcounter{chapter}
+\chapter*{Data Understanding and Preparation} 
+\phantomsection
+\addcontentsline{toc}{chapter}{\protect\numberline{\thechapter}Data Understanding and Preparation}
+\markboth{Data Understanding and Preparation}{} 
+
+\vspace{-10mm}
+\section{Dataset}
+The \textit{Board Games Dataset} contains information regarding 
+more than 20k board games rated by an online board game 
+community. The information provided range from year of publication, 
+game difficulty, number of players, information about games rank in 
+specific categories and game characteristics/themes.
+The variables are specified in the table below:
+
+\begin{footnotesize}
+\begin{longtable}{|p{4cm}|p{10cm}|p{1.5cm}|}
+\hline
+\textbf{Name} & \textbf{Description} & \textbf{Type} \\
+\hline
+\endhead
+
+\texttt{BGGId} & Game Id & \texttt{int64} \\
+\texttt{Name} & Name of game & \texttt{object} \\
+\texttt{Description} & Description of the game & \texttt{object} \\
+\texttt{YearPublished} & Year in which the game was published & \texttt{int64} \\
+\texttt{GameWeight} & Game complexity from 1 to 5 & \texttt{float64} \\
+\texttt{ComWeight} & Community recommended game complexity from 1 to 5 & \texttt{float64} \\
+\texttt{MinPlayers} & Minimum number of players & \texttt{int64} \\
+\texttt{MaxPlayers} & Maximum number of players & \texttt{int64} \\
+\texttt{ComAgeRec} & Community's recommended age minimum & \texttt{float64} \\
+\texttt{LanguageEase} & Language requirement & \texttt{float64} \\
+\texttt{BestPlayers} & Community voted best player count & \texttt{int64} \\
+\texttt{GoodPlayers} & List of community voted good player counts & \texttt{object} \\
+\texttt{NumOwned} & Number of users who own this game & \texttt{int64} \\
+\texttt{NumWant} & Number of users who want this game & \texttt{int64} \\
+\texttt{NumWish} & Number of users who wishlisted this game & \texttt{int64} \\
+\texttt{NumWeightVotes} & Number of votes for the weight category received by users & \texttt{int64} \\
+\texttt{MfgPlaytime} & Manufacturer Stated Play Time & \texttt{int64} \\
+\texttt{ComMinPlaytime} & Community minimum play time & \texttt{int64} \\
+\texttt{ComMaxPlaytime} & Community maximum play time & \texttt{int64} \\
+\texttt{MfgAgeRec} & Manufacturer Age & \texttt{int64} \\
+\texttt{NumUserRatings} & Number of user ratings & \texttt{int64} \\
+\texttt{NumComments} & Number of user comments & \texttt{int64} \\
+\texttt{NumAlternates} & Number of alternate versions & \texttt{int64} \\
+\texttt{NumExpansions} & Number of expansions & \texttt{int64} \\
+\texttt{NumImplementations} & Number of implementations & \texttt{int64} \\
+\texttt{IsReimplementation} & Is this game presenting a reimplementation? & \texttt{int64} \\
+\texttt{Family} & Game family the game belongs to & \texttt{object} \\
+\texttt{Kickstarted} & Is this game from a kickstarter (crowdfunding campaign) project? & \texttt{int64} \\
+\texttt{ImagePath} & Image http:// path & \texttt{object} \\
+\texttt{Rank:strategygames} & Rank in strategy games & \texttt{int64} \\
+\texttt{Rank:abstracts} & Rank in abstracts & \texttt{int64} \\
+\texttt{Rank:familygames} & Rank in family games & \texttt{int64} \\
+\texttt{Rank:thematic} & Rank in thematic & \texttt{int64} \\
+\texttt{Rank:cgs} & Rank in card games & \texttt{int64} \\
+\texttt{Rank:wargames} & Rank in war games & \texttt{int64} \\
+\texttt{Rank:partygames} & Rank in party games & \texttt{int64} \\
+\texttt{Rank:childrensgames} & Rank in children's games & \texttt{int64} \\
+\texttt{Cat:Thematic} & Binary is in Thematic category & \texttt{int64} \\
+\texttt{Cat:Strategy} & Binary is in Strategy category & \texttt{int64} \\
+\texttt{Cat:War} & Binary is in War category & \texttt{int64} \\
+\texttt{Cat:Family} & Binary is in Family category & \texttt{int64} \\
+\texttt{Cat:CGS} & Binary is in Card Games category & \texttt{int64} \\
+\texttt{Cat:Abstract} & Binary is in Abstract category & \texttt{int64} \\
+\texttt{Cat:Party} & Binary is in Party category & \texttt{int64} \\
+\texttt{Cat:Childrens} & Binary is in Childrens category & \texttt{int64} \\
+\texttt{Rating} & Game rating (low, medium, high) & \texttt{object} \\
+\hline
+\end{longtable}
+\end{footnotesize}
+
+\noindent This report contains the summary of the analysis performed on the dataset in two stages: Data Understanding and Preparation, and Clustering.
+From initial exploration we have:
+
+\noindent Total number of records: 21925\\
+\noindent Total number of attributes: 46\\
+\noindent In our dataset, we found 0 duplicate rows.
+
+\section{Distribution of variables}
+An automatic classification of the variables based on their \texttt{dtype} and cardinality was performed. This analysis is crucial for determining the correct preparation strategy (e.g., scaling, transformation).
+\begin{itemize}
+    \item \textbf{Categorical (18 columns):} Object types, IDs, and binary flags. 
+
+    \textit{\small BGGId, Name, Description, GoodPlayers, NumComments, IsReimplementation, Family, Kickstarted, ImagePath, Cat:Thematic, Cat:Strategy, Cat:War, Cat:Family, Cat:CGS, Cat:Abstract, Cat:Party, Cat:Childrens, Rating}
+    
+    \item \textbf{Continuous (4 columns):} All \texttt{float64} types. \\
+    \textit{\small GameWeight, ComWeight, ComAgeRec, LanguageEase}
+
+    \item \textbf{Discrete (24 columns):} All high-cardinality \texttt{int64} types (counts, ranks, etc.). \\
+    \textit{\small YearPublished, MinPlayers, MaxPlayers, BestPlayers, NumOwned, NumWant, NumWish, NumWeightVotes, MfgPlaytime, ComMinPlaytime, ComMaxPlaytime, MfgAgeRec, NumUserRatings, NumAlternates, NumExpansions, NumImplementations, Rank:strategygames, Rank:abstracts, Rank:familygames, Rank:thematic, Rank:cgs, Rank:wargames, Rank:partygames, Rank:childrensgames}
+\end{itemize}
+
+
+\noindent A skewness and kurtosis analysis (Table \ref{tab:skew_kurtosis}) was performed on all numeric features to test for normality.
+
+\begin{table}[H]
+\centering
+\caption{Skewness and Kurtosis of Numeric Features. High positive values indicate a heavy right-skew and non-normal distributions.}
+\label{tab:skew_kurtosis}
+\begin{footnotesize}
+\begin{tabular}{|l|r|r|}
+\hline
+\textbf{Feature} & \textbf{Skewness} & \textbf{Kurtosis} \\
+\hline
+GameWeight & 0.395861 & 0.053182 \\
+ComWeight & 0.302567 & 0.209106 \\
+ComAgeRec & 0.143862 & -0.381596 \\
+LanguageEase & 1.671916 & 4.431087 \\
+YearPublished & -11.324235 & 152.995691 \\
+MinPlayers & 1.704234 & 10.722395 \\
+MaxPlayers & 42.387696 & 2647.275467 \\
+BestPlayers & 3.733134 & 15.745030 \\
+NumOwned & 12.517373 & 238.628210 \\
+NumWant & 6.956857 & 65.837595 \\
+NumWish & 9.350407 & 124.392344 \\
+NumWeightVotes & 15.317043 & 366.316525 \\
+MfgPlaytime & 74.739212 & 7730.566352 \\
+ComMinPlaytime & 116.207073 & 15289.798471 \\
+ComMaxPlaytime & 74.739212 & 7730.566352 \\
+MfgAgeRec & -0.838558 & 0.947437 \\
+NumUserRatings & 12.586978 & 231.561002 \\
+NumAlternates & 52.601012 & 3822.922060 \\
+NumExpansions & 24.951409 & 1186.177390 \\
+NumImplementations & 12.157622 & 342.326796 \\
+Rank:strategygames & -2.569618 & 4.615674 \\
+Rank:abstracts & -4.090590 & 14.739232 \\
+Rank:familygames & -2.571919 & 4.627397 \\
+Rank:thematic & -3.871507 & 12.995307 \\
+Rank:cgs & -8.329871 & 67.394094 \\
+Rank:wargames & -1.857211 & 1.471660 \\
+Rank:partygames & -5.594612 & 29.305022 \\
+Rank:childrensgames & -4.684208 & 19.947404 \\
+\hline
+\end{tabular}
+\end{footnotesize}
+\end{table}
+
+\noindent The results in Table \ref{tab:skew_kurtosis} clearly show that most count-based columns (like \texttt{NumOwned} and \texttt{MaxPlayers}) are extremely right-skewed and not normally distributed. This finding justifies our decision to use a log-transform and a non-parametric scaler (\texttt{RobustScaler}) during preparation.
+
+\section{Outliers detection}
+\label{outliers_detection}
+
+
+\noindent To identify outliers, both Z-Score (Table \ref{tab:zscore_outliers}) and the Interquartile Range (IQR) method (Table \ref{tab:iqr_outliers}) were used. Given the non-normal, skewed distribution of our data (seen in Section 1.2), the IQR method is considered more reliable.
+
+\begin{table}[H]
+\centering
+\caption{Potential Outliers (Z-Score > 3)}
+\label{tab:zscore_outliers}
+\begin{footnotesize}
+\begin{tabular}{|l|r|}
+\hline
+\textbf{Feature} & \textbf{Outlier Count (Z-Score)} \\
+\hline
+YearPublished & 218 \\
+GameWeight & 51 \\
+ComWeight & 38 \\
+MinPlayers & 118 \\
+MaxPlayers & 190 \\
+ComAgeRec & 28 \\
+LanguageEase & 206 \\
+BestPlayers & 1048 \\
+NumOwned & 307 \\
+NumWant & 433 \\
+NumWish & 353 \\
+NumWeightVotes & 279 \\
+MfgPlaytime & 67 \\
+ComMinPlaytime & 21 \\
+ComMaxPlaytime & 67 \\
+MfgAgeRec & 13 \\
+NumUserRatings & 304 \\
+NumAlternates & 78 \\
+NumExpansions & 232 \\
+NumImplementations & 350 \\
+Rank:strategygames & 561 \\
+Rank:abstracts & 1115 \\
+Rank:familygames & 571 \\
+Rank:thematic & 1224 \\
+Rank:cgs & 303 \\
+Rank:partygames & 640 \\
+Rank:childrensgames & 881 \\
+Cat:Thematic & 1224 \\
+Cat:CGS & 303 \\
+Cat:Abstract & 1115 \\
+Cat:Party & 640 \\
+Cat:Childrens & 881 \\
+\hline
+\end{tabular}
+\end{footnotesize}
+\end{table}
+
+
+\begin{table}[H]
+\centering
+\caption{Potential Outliers (IQR Method). This method is more robust for our skewed data.}
+\label{tab:iqr_outliers}
+\begin{footnotesize}
+\begin{tabular}{|l|r|}
+\hline
+\textbf{Feature} & \textbf{Outlier Count (IQR)} \\
+\hline
+MinPlayers & 6886 \\
+NumImplementations & 4873 \\
+Rank:wargames & 3530 \\
+Cat:War & 3530 \\
+NumAlternates & 3477 \\
+Kickstarted & 3362 \\
+NumUserRatings & 3110 \\
+NumWish & 3030 \\
+NumWeightVotes & 2938 \\
+NumWant & 2910 \\
+NumOwned & 2845 \\
+IsReimplementation & 2560 \\
+Rank:strategygames & 2319 \\
+Cat:Strategy & 2319 \\
+Cat:Family & 2316 \\
+Rank:familygames & 2316 \\
+NumExpansions & 2183 \\
+BestPlayers & 1981 \\
+ComMinPlaytime & 1711 \\
+MfgPlaytime & 1463 \\
+ComMaxPlaytime & 1463 \\
+MaxPlayers & 1340 \\
+MfgAgeRec & 1339 \\
+Cat:Thematic & 1224 \\
+Rank:thematic & 1224 \\
+\textbf{YearPublished} & \textbf{1143} \\
+Rank:abstracts & 1115 \\
+Cat:Abstract & 1115 \\
+Cat:Childrens & 881 \\
+Rank:childrensgames & 881 \\
+Rank:partygames & 640 \\
+Cat:Party & 640 \\
+Cat:CGS & 303 \\
+Rank:cgs & 303 \\
+LanguageEase & 257 \\
+GameWeight & 134 \\
+ComWeight & 100 \\
+ComAgeRec & 41 \\
+\hline
+\end{tabular}
+\end{footnotesize}
+\end{table}
+
+\noindent The IQR analysis (Table \ref{tab:iqr_outliers}) confirmed the presence of a large number of outliers. The most critical finding was in \texttt{YearPublished}, which showed 1,143 outliers. This was caused by some ancient games (e.g., a minimum value of -3500) and justified our decision to clip this feature before imputation. The plots in Figure \ref{fig:main_plots_hists} visualize these distributions.
+
+
+\begin{figure}[H]
+    \centering 
+    
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{analysis_plots/boxplot_YearPublished.png} 
+        \caption{Boxplot for YearPublished}
+        \label{fig:boxplot_year}
+    \end{subfigure}
+    \hfill 
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{analysis_plots/boxplot_MinPlayers.png} 
+        \caption{Boxplot for MinPlayers}
+        \label{fig:boxplot_minplayers}
+    \end{subfigure}
+    
+    \vspace{5mm} % Add a little space between the rows
+    
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{analysis_plots/hist_NumOwned.png} % <-- FIXED PATH
+        \caption{Histogram for NumOwned (Highly Skewed)} 
+        \label{fig:hist_numowned}
+    \end{subfigure}
+    \hfill 
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{analysis_plots/hist_GameWeight.png} % <-- FIXED PATH
+        \caption{Histogram for GameWeight (Near-Normal)} 
+        \label{fig:hist_gameweight}
+    \end{subfigure}
+    
+    \caption{Boxplots (top) visualizing outliers and Histograms (bottom) visualizing data skewness.}
+    \label{fig:main_plots_hists}
+\end{figure}
+
+\section{Handling missing values}
+The dataset was checked for missing values, with the results summarized in Table \ref{tab:missing_values} and visualized in Figure \ref{fig:missing-heatmap}.
+
+\begin{table}[H]
+\centering
+\caption{Columns with Missing Values}
+\label{tab:missing_values}
+\begin{footnotesize}
+\begin{tabular}{|l|r|r|}
+\hline
+\textbf{Column} & \textbf{Missing Count} & \textbf{Missing \%} \\
+\hline
+Family & 15262 & 69.61\% \\
+LanguageEase & 5891 & 26.87\% \\
+ComAgeRec & 5530 & 25.22\% \\
+ImagePath & 17 & 0.08\% \\
+Description & 1 & 0.00\% \\
+\hline
+\end{tabular}
+\end{footnotesize}
+\end{table}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{analysis_plots/heatmap_missing_values.png} 
+    \caption{Heatmap visualizing missing data. A yellow line indicates a missing value.}
+    \label{fig:missing-heatmap}
+\end{figure}
+
+
+\noindent Based on this analysis, the following preparation strategy was applied:
+\begin{itemize}
+    \item \textbf{{Family}:} This column was dropped, as it was 69.61\% empty and thus contained little usable information.
+    \item \textbf{{LanguageEase} \& \texttt{ComAgeRec}:} These columns were kept. Dropping them would discard over 25\% of the data. Instead, the missing values were imputed using their respective \textbf{median} value.
+    \item \textbf{Other columns:} The few remaining missing values (e.g., in \texttt{ImagePath}) were also imputed.
+\end{itemize}
+
+\section{Dependencies and correlations}
+\label{sec:correlations}
+Finally, the correlation between all numeric features was calculated to identify redundant data.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{analysis_plots/heatmap_correlation_matrix.png} 
+    \caption{Full Correlation Matrix Heatmap.}
+    \label{fig:corr-heatmap} 
+\end{figure}
+
+\begin{table}[H]
+\centering
+\caption{Highly Correlated Pairs (Threshold > 0.8)}
+\label{tab:corr-pairs}
+\begin{footnotesize}
+\begin{tabular}{|l|l|r|}
+\hline
+\textbf{Feature 1} & \textbf{Feature 2} & \textbf{Correlation} \\
+\hline
+\texttt{MfgPlaytime} & \texttt{ComMaxPlaytime} & 1.000000 \\
+\texttt{Rank:cgs} & \texttt{Cat:CGS} & 0.999992 \\
+\texttt{Rank:partygames} & \texttt{Cat:Party} & 0.999962 \\
+\texttt{Rank:childrensgames} & \texttt{Cat:Childrens} & 0.999927 \\
+\texttt{Rank:abstracts} & \texttt{Cat:Abstract} & 0.999880 \\
+\texttt{Rank:thematic} & \texttt{Cat:Thematic} & 0.999854 \\
+\texttt{Rank:familygames} & \texttt{Cat:Family} & 0.999421 \\
+\texttt{Rank:strategygames} & \texttt{Cat:Strategy} & 0.999415 \\
+\texttt{Rank:wargames} & \texttt{Cat:War} & 0.998480 \\
+\texttt{GameWeight} & \texttt{ComWeight} & 0.997268 \\
+\texttt{NumOwned} & \texttt{NumUserRatings} & 0.985474 \\
+\texttt{NumWant} & \texttt{NumWish} & 0.939758 \\
+\texttt{NumWeightVotes} & \texttt{NumUserRatings} & 0.917185 \\
+\texttt{NumOwned} & \texttt{NumWeightVotes} & 0.874876 \\
+\texttt{MfgPlaytime} & \texttt{ComMinPlaytime} & 0.854679 \\
+\texttt{ComMinPlaytime} & \texttt{ComMaxPlaytime} & 0.854679 \\
+\texttt{NumWish} & \texttt{NumUserRatings} & 0.814348 \\
+\hline
+\end{tabular}
+\end{footnotesize}
+\end{table}
+
+\noindent The correlation matrix (Figure \ref{fig:corr-heatmap}) and table (Table \ref{tab:corr-pairs}) revealed significant redundancy. All \texttt{Rank:*} columns were nearly identical to their \texttt{Cat:*} counterparts. Furthermore, \texttt{ComWeight} was 99.7\% correlated with \texttt{GameWeight}. Based on these findings, all redundant columns (all \texttt{Rank:*} columns, \texttt{ComWeight}, \texttt{NumWant}, etc.) were dropped.
+
+\subsection*{Final Preparation Strategy}
+With all analysis complete, a final preparation script (\texttt{task\_2\_analysis.py}) was created to perform the following steps:
+\begin{enumerate}
+    \item \textbf{Clip Outliers:} The extreme negative values in \texttt{YearPublished} were clipped.
+    \item \textbf{Drop Columns:} All redundant, high-missing, and text-based columns were dropped.
+    \item \textbf{Impute Data:} Missing values for \texttt{YearPublished}, \texttt{ComAgeRec}, and \texttt{LanguageEase} were filled using their medians.
+    \item \textbf{Log-Transform:} An automatic skew-detection (threshold > 1.0) was run. All 26 identified skewed columns were transformed using \texttt{np.log1p} to normalize their distributions.
+    \item \textbf{Scale Data:} Finally, the data was scaled using \texttt{RobustScaler}. This scaler was chosen over \texttt{StandardScaler} because our analysis in Section 1.2 proved the data is not normally distributed and \texttt{RobustScaler} is not sensitive to the outliers identified in Section 1.3.
+\end{enumerate}
+This process resulted in the final \texttt{dm1\_prepared\_dataset.csv} file used for clustering.

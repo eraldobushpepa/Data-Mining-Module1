@@ -1,0 +1,129 @@
+\stepcounter{chapter}
+\chapter*{Clustering}
+\phantomsection
+\addcontentsline{toc}{chapter}{\protect\numberline{\thechapter}Clustering} 
+\markboth{Clustering}{} 
+\vspace{-10mm}
+Before starting the cluster analysis, we used the \texttt{dm1\_prepared\_dataset.csv} file from the previous preparation step. This dataset is fully cleaned, imputed, log-transformed, and scaled using \texttt{RobustScaler}.
+
+Our clustering analysis followed the project guidelines by testing all three mandatory methods. We performed an experiment by comparing a "Full Feature" model (using all 32 prepared features) against a "Selected Feature" model (using only 3 core features) to find the best result.
+
+\section{Centroid-based clustering}
+\subsection{Choice of $k$}
+We applied the following techniques for choosing the optimal value of $k$.
+
+\subsubsection*{The Elbow Method}
+This method involves running the k-means algorithm for a chosen range of values of $k$. For each value of $k$, the Sum of Squared Errors (SSE) is calculated. The “elbow” in the plot of SSE versus $k$ is considered as an indicator of the appropriate number of clusters.
+
+\begin{figure}[H] % Use [H] to force it to be "Here"
+    \centering
+    \includegraphics[width=1\textwidth]{clustering_plots/kmeans_evaluation_selected_features.png}
+    \caption{Elbow and Silhouette plots for the winning 3-Feature set.}
+\end{figure}
+
+\subsubsection*{The Silhouette Method}
+This method measures (range -1 to 1) how similar an object is to its own cluster compared to other clusters. A high value indicates that the object is well matched to its own cluster. We use the highest average silhouette score to select the best $k$.
+
+\begin{figure}[H] % Use [H] to force it to be "Here"
+    \centering
+    \includegraphics[width=1\textwidth]{clustering_plots/kmeans_evaluation.png}
+    \caption{Elbow and Silhouette plots for the baseline 32-Feature set.}
+\end{figure}
+
+\subsection{K-Means}
+K-Means clustering was performed twice to test the effect of feature selection.
+
+\subsubsection{Baseline Run: Full Features (32)}
+First, a baseline model was run using all 32 prepared features.
+\begin{itemize}
+    \item \textbf{Best $k$:} 2
+    \item \textbf{Silhouette Score:} $0.180$
+\end{itemize}
+This score is very low, indicating that the clusters are poorly defined and overlap significantly. This is likely due to the "Curse of Dimensionality" caused by including noisy or binary features.
+
+\subsubsection{Experiment: Selected Features (3)}
+Next, we ran an experiment using only 3 core features identified through analysis: \texttt{['GameWeight', 'MfgPlaytime', 'NumOwned']}.
+\begin{itemize}
+    \item \textbf{Best $k$:} 4
+    \item \textbf{Silhouette Score:} $0.357$
+\end{itemize}
+This result is a 98\% improvement over the baseline, proving that feature selection was critical. The model identified 4 distinct, interpretable clusters, as seen in the centroid plot (Figure \ref{fig:kmeans_parallel}) and 3D scatter plot (Figure \ref{fig:kmeans_3d}).
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{clustering_plots/kmeans_centroid_plot.png}
+    \caption{Parallel coordinate plot of our final K-Means centroids ($k=4$).}
+    \label{fig:kmeans_parallel}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.2\textwidth]{clustering_plots/kmeans_3d_scatter_plot.png}
+    \caption{3D Scatter Plot of the 4 clusters (on a 10\% sample).}
+    \label{fig:kmeans_3d}
+\end{figure}
+
+\noindent Based on the centroid plot, we can interpret our 4 clusters:
+\begin{itemize}
+    \item \textbf{Cluster 0 (Heavy/Long Games):} This cluster (5674 games) is defined by a high \texttt{GameWeight} (0.81) and a high \texttt{MfgPlaytime} (0.91). This group represents the \textbf{'Heavy/Long Games'}—complex, strategic games that take a long time to play. Their \texttt{NumOwned} (0.09) is near the median, suggesting they are a large but specialized part of the market.
+
+    \item \textbf{Cluster 1 (Quick Play Games):} This is a small, specialized cluster (836 games) defined by an extremely low \texttt{MfgPlaytime} (-2.99). This clearly represents the \textbf{'Quick Play' or 'Filler' Games}. These are games that play very fast, and they have below-average complexity and ownership.
+
+    \item \textbf{Cluster 2 (Popular Games):} This cluster (5034 games) is defined almost entirely by its very high \texttt{NumOwned} (1.16). Its \texttt{GameWeight} (0.04) and \texttt{MfgPlaytime} (0.01) are almost exactly at the median. This represents the \textbf{'Popular \& Mainstream Games'}—games that are widely owned regardless of their complexity or length.
+
+    \item \textbf{Cluster 3 (Light/Standard Games):} This is the largest cluster (10381 games) and represents the baseline \textbf{'Light/Standard Games'}. All its features are below the median: low \texttt{GameWeight} (-0.42), low \texttt{MfgPlaytime} (-0.33), and low \texttt{NumOwned} (-0.29). This group consists of the vast number of simpler, faster, and less-owned games in the dataset.
+\end{itemize}
+
+\section{Density-based clustering}
+\subsection{DBSCAN}
+We ran DBSCAN on the same 3-feature set to provide a fair comparison. To find the best parameters, we first generated a k-distance plot (Figure \ref{fig:dbscan_kdist}) to find the "elbow".
+
+\begin{figure}[H]
+    \centering
+
+    \includegraphics[width=1\textwidth]{clustering_plots/k_distance_plot.png}
+    \caption{k-Distance plot ($k=6$). The "elbow" was automatically found at $eps=0.1456$.}
+    \label{fig:dbscan_kdist}
+\end{figure}
+
+\noindent We used the identified elbow value of $\texttt{eps}=0.1456$ and $\texttt{min\_samples}=6$. The model failed completely:
+\begin{itemize}
+    \item \textbf{Total Noise Points:} 1840 (8.39\% of the data)
+    \item \textbf{Silhouette Score (excl. noise):} $-0.3221$
+\end{itemize}
+The model produced 40 tiny micro-clusters and one giant "blob" cluster containing 17,961 points. The negative silhouette score confirms that the resulting clusters are worse than random. This definitively proves that our dataset does not have a density-based structure.
+Here we ran the script once to find what was the optimal eps=0.1456 and we rerun it.
+
+\section{Hierarchical clustering}
+Finally, we ran Agglomerative Hierarchical Clustering on our 3-feature set, setting \texttt{n\_clusters}=4 for a direct comparison with K-Means.
+
+\begin{figure}[H]
+    \centering
+
+    \includegraphics[width=1\textwidth]{clustering_plots/hierarchical_dendrogram.png}
+    \caption{Dendrogram for Hierarchical Clustering (on a 1\% sample). The tree is unbalanced and does not show 4 clear, distinct clusters.}
+    \label{fig:dendrogram}
+\end{figure}
+
+\noindent The model produced a Silhouette Score of $0.3367$. While this is a good score (and an 87\% improvement on the baseline), it is still lower than our K-Means result but acceptable.
+
+\begin{figure}[H]
+    \centering
+
+    \includegraphics[width=1.2\textwidth]{clustering_plots/hierarchical_centroid_plot.png}
+    \caption{Centroid plot for the Hierarchical model. It attempts to find the same 4 groups as K-Means, but the cluster sizes are less balanced.}
+    \label{fig:hier_parallel}
+\end{figure}
+
+\noindent The cluster analysis (Figure \ref{fig:hier_parallel}) shows it found the same 4 archetypes as K-Means, but with very different sizes (e.g., the "Light Games" cluster has 12,348 points, and the "Quick Play" cluster only 791). This confirms that forcing a hierarchical structure onto the data is a worse fit than K-Means.
+
+\section{Final discussion}
+This analysis followed the three mandatory clustering methods. Our experiments provided a clear and definitive winner.
+
+\begin{itemize}
+    \item \textbf{DBSCAN} was a total failure (Silhouette Score: $-0.322$), proving the data is not density-based.
+    \item \textbf{Hierarchical Clustering} was a good runner-up (Silhouette Score: $0.337$), but was ultimately outperformed.
+    \item \textbf{K-Means} was the clear winner. By performing feature selection and reducing 32 noisy features to 3 core features, we improved our model quality by 98\%, achieving a final Silhouette Score of $0.357$.
+\end{itemize}
+
+\noindent We conclude that the best model for this dataset is K-Means with $k=4$ applied to the \texttt{GameWeight}, \texttt{MfgPlaytime}, and \texttt{NumOwned} features.
